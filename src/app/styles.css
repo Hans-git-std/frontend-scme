@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap');
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #18221f;
+  background: #f6f4ee;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button { font: inherit; }
+
+.app-shell { min-height: 100vh; background: radial-gradient(circle at 85% 8%, #d8e7d8 0, transparent 31%), #f6f4ee; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 28px clamp(24px, 6vw, 88px); border-bottom: 1px solid #d9ddd4; }
+.brand-mark { font-family: 'Space Grotesk', sans-serif; font-weight: 700; letter-spacing: .08em; }
+.environment-label, .eyebrow { color: #65756e; font-size: .75rem; letter-spacing: .13em; text-transform: uppercase; }
+.content { max-width: 960px; margin: 0 auto; padding: clamp(72px, 13vh, 150px) 24px; }
+.intro { max-width: 690px; animation: rise .65s ease-out both; }
+h1, h2 { font-family: 'Space Grotesk', sans-serif; letter-spacing: -.045em; }
+h1 { max-width: 700px; margin: 16px 0; font-size: clamp(3rem, 7vw, 6.2rem); line-height: .98; }
+.lede { max-width: 480px; color: #65756e; font-size: 1.1rem; line-height: 1.6; }
+.health-card { display: grid; grid-template-columns: 1fr auto auto; gap: 28px; align-items: center; margin-top: 80px; padding: 28px; border: 1px solid #cfd8cc; background: rgba(255,255,255,.54); box-shadow: 12px 12px 0 #dfe8db; animation: rise .65s .12s ease-out both; }
+.health-card h2 { margin: 7px 0; font-size: 1.7rem; }
+.health-card .eyebrow { margin: 0; }
+.endpoint { margin: 0; color: #65756e; font-family: monospace; font-size: .85rem; overflow-wrap: anywhere; }
+.health-result { display: flex; align-items: center; gap: 10px; max-width: 220px; color: #42534c; font-size: .9rem; }
+.status-dot { width: 10px; height: 10px; flex: 0 0 10px; border-radius: 50%; background: #3e8e62; }
+.status-dot.idle { background: #b5bdb5; }
+button { border: 0; padding: 13px 18px; color: #f6f4ee; background: #18221f; cursor: pointer; }
+button:disabled { cursor: wait; opacity: .6; }
+button:focus-visible { outline: 3px solid #8db89b; outline-offset: 3px; }
+@keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 680px) { .topbar { padding: 22px 20px; } .environment-label { font-size: .65rem; } .content { padding: 72px 20px; } .health-card { grid-template-columns: 1fr; gap: 18px; margin-top: 56px; } .health-result { max-width: none; } button { width: 100%; } }
