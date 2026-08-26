@@ -1,9 +1,13 @@
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || 'https://student-corporate-matcher.onrender.com/api/v1';
 
-if (!apiBaseUrl) {
-  console.warn('VITE_API_BASE_URL is not configured. Add it to a local .env file.')
-}
+export const PING_URL =
+  import.meta.env.VITE_PING_URL || 'https://student-corporate-matcher.onrender.com/api/v1/ping';
 
-export const env = {
-  apiBaseUrl: apiBaseUrl?.replace(/\/$/, '') ?? '',
-} as const
+export const APP_CONFIG = {
+  appName: 'Student-Corporate Matcher',
+  version: '1.0.0',
+  keepAliveIntervalMs: 4 * 60 * 1000, // 4 minutes
+  otpCooldownSeconds: 60,
+  otpValidityMinutes: 5,
+};
