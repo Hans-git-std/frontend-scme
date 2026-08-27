@@ -173,6 +173,34 @@ export const CompaniesDirectoryPage: React.FC = () => {
                     {c.description || 'Verified hiring partner participating in campus placement and intelligent matchmaking.'}
                   </p>
 
+                  {/* Active Job Roles preview */}
+                  {(() => {
+                    const criteriaList = c.activeCriteria || c.criteria || c.hiringCriteria || [];
+                    if (criteriaList.length === 0) return null;
+                    return (
+                      <div className="pt-1 space-y-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Open Job Roles ({criteriaList.length}):
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {criteriaList.slice(0, 3).map((crit) => (
+                            <span
+                              key={crit.id}
+                              className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-300 text-[10px] font-semibold border border-sky-200/60 dark:border-sky-800/50"
+                            >
+                              {crit.roleTitle}
+                            </span>
+                          ))}
+                          {criteriaList.length > 3 && (
+                            <span className="text-[10px] text-slate-400 self-center">
+                              +{criteriaList.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
                   <div className="space-y-1.5 text-xs text-slate-500 pt-1">
                     {c.location && (
                       <p className="flex items-center gap-1.5">
@@ -195,8 +223,11 @@ export const CompaniesDirectoryPage: React.FC = () => {
                 </div>
 
                 <div className="pt-4 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
-                  <span className="text-xs text-slate-400">
-                    {c.criteria?.length || 0} Open Roles
+                  <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                    {(() => {
+                      const count = (c.activeCriteria || c.criteria || c.hiringCriteria || []).length;
+                      return `${count} Open Role${count === 1 ? '' : 's'}`;
+                    })()}
                   </span>
                   <Link
                     to={`/companies/${c.id}`}

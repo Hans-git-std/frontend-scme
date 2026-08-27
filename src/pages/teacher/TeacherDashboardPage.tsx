@@ -13,6 +13,7 @@ import {
   Clock,
   User,
   ListChecks,
+  RotateCw,
 } from 'lucide-react';
 import { apiClient } from '../../lib/api';
 import {
@@ -35,7 +36,12 @@ export const TeacherDashboardPage: React.FC = () => {
   });
 
   // Call the official backend endpoint for pending student mark verifications
-  const { data: pendingVerifications, isLoading: isPendingLoading } = useQuery({
+  const {
+    data: pendingVerifications,
+    isLoading: isPendingLoading,
+    isFetching: isPendingFetching,
+    refetch: refetchPending,
+  } = useQuery({
     queryKey: ['pendingStudentVerifications'],
     queryFn: async () => {
       try {
@@ -47,6 +53,8 @@ export const TeacherDashboardPage: React.FC = () => {
         return [];
       }
     },
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   const handleSearchStudent = (e: React.FormEvent) => {
@@ -119,13 +127,24 @@ export const TeacherDashboardPage: React.FC = () => {
               Candidates who have self-reported marks matching your assigned teaching subjects
             </p>
           </div>
-          <Link
-            to="/teacher/verify"
-            className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
-          >
-            <span>Open Verification Console</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => refetchPending()}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-950/60 dark:hover:text-indigo-400 text-xs font-semibold transition-all cursor-pointer"
+              title="Refresh Queue"
+            >
+              <RotateCw className={`w-3.5 h-3.5 ${isPendingFetching ? 'animate-spin text-indigo-600' : ''}`} />
+              <span>Refresh</span>
+            </button>
+            <Link
+              to="/teacher/verify"
+              className="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+            >
+              <span>Open Verification Console</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
         {isPendingLoading ? (

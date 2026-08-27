@@ -80,6 +80,8 @@ export const TeacherVerifyPage: React.FC = () => {
         return [];
       }
     },
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   // Auto-select first student if no rollNumber specified and pending students exist
@@ -108,6 +110,8 @@ export const TeacherVerifyPage: React.FC = () => {
       return res.data.data || [];
     },
     enabled: !!activeRoll.trim(),
+    refetchOnMount: 'always',
+    staleTime: 0,
   });
 
   useEffect(() => {

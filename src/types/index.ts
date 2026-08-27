@@ -305,7 +305,10 @@ export interface CompanyPublicResponse {
   description?: string;
   logoUrl?: string;
   verificationStatus: CompanyVerificationStatus;
+  verificationBadge?: string;
+  activeCriteria?: HiringCriteriaResponse[];
   criteria?: HiringCriteriaResponse[];
+  hiringCriteria?: HiringCriteriaResponse[];
 }
 
 export interface CompanyRegisterRequest {
