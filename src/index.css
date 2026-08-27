@@ -13,6 +13,55 @@
     --foreground: 210 40% 98%;
   }
 
+  /* Default arrow pointer on general UI elements */
+  *, html, body, div, section, main, header, footer, nav, aside, p, span, h1, h2, h3, h4, h5, h6, table, thead, tbody, tr, th, td, ul, ol, li, dl, dt, dd {
+    cursor: default;
+  }
+
+  /* Text I-beam cursor strictly for text input elements */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="date"],
+  textarea,
+  [contenteditable="true"] {
+    cursor: text;
+  }
+
+  /* Clickable pointer for all interactive elements */
+  button,
+  [role="button"],
+  a,
+  select,
+  summary,
+  label,
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="submit"],
+  input[type="button"],
+  input[type="reset"],
+  .clickable,
+  .cursor-pointer {
+    cursor: pointer !important;
+  }
+
+  /* Disabled state */
+  [disabled],
+  :disabled,
+  .cursor-not-allowed {
+    cursor: not-allowed !important;
+  }
+
+  /* Waiting / Busy state */
+  [aria-busy="true"],
+  .cursor-wait {
+    cursor: wait !important;
+  }
+
   body {
     @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased selection:bg-brand-500 selection:text-white;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
