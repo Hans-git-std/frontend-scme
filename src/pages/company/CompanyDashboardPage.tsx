@@ -22,6 +22,7 @@ import { CardSkeleton } from '../../components/ui/Skeleton';
 import { Modal } from '../../components/ui/Modal';
 import { useToast } from '../../components/ui/Toast';
 import { getVerificationStatusBadge } from '../../lib/utils';
+import { CompanyLogo } from '../../components/ui/CompanyLogo';
 
 export const CompanyDashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -113,13 +114,11 @@ export const CompanyDashboardPage: React.FC = () => {
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-700 via-sky-600 to-indigo-700 text-white p-6 sm:p-8 shadow-lg shadow-sky-500/10">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white font-extrabold text-2xl overflow-hidden shrink-0">
-              {profile?.logoUrl ? (
-                <img src={profile.logoUrl} alt={profile.companyName} className="w-full h-full object-cover" />
-              ) : (
-                profile?.companyName?.charAt(0) || 'C'
-              )}
-            </div>
+            <CompanyLogo
+              logoUrl={profile?.logoUrl}
+              companyName={profile?.companyName || 'Company'}
+              size="lg"
+            />
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">

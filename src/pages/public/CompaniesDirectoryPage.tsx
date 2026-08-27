@@ -16,6 +16,7 @@ import { apiClient } from '../../lib/api';
 import { ApiResponse, CompanyPublicResponse } from '../../types';
 import { CardSkeleton } from '../../components/ui/Skeleton';
 import { getVerificationStatusBadge } from '../../lib/utils';
+import { CompanyLogo } from '../../components/ui/CompanyLogo';
 
 export const CompaniesDirectoryPage: React.FC = () => {
   const [search, setSearch] = useState('');
@@ -147,13 +148,11 @@ export const CompaniesDirectoryPage: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-bold text-lg overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
-                        {c.logoUrl ? (
-                          <img src={c.logoUrl} alt={c.companyName} className="w-full h-full object-cover" />
-                        ) : (
-                          c.companyName.charAt(0)
-                        )}
-                      </div>
+                      <CompanyLogo
+                        logoUrl={c.logoUrl}
+                        companyName={c.companyName}
+                        size="md"
+                      />
                       <div>
                         <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-sky-600 transition-colors">
                           {c.companyName}

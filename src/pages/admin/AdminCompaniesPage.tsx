@@ -35,6 +35,7 @@ import {
 import { TableSkeleton } from '../../components/ui/Skeleton';
 import { Modal } from '../../components/ui/Modal';
 import { getVerificationStatusBadge, COMMON_SUBJECTS, COMMON_SKILLS } from '../../lib/utils';
+import { CompanyLogo } from '../../components/ui/CompanyLogo';
 
 interface CriteriaSkillRow {
   skillName: string;
@@ -541,13 +542,11 @@ export const AdminCompaniesPage: React.FC = () => {
                     <tr key={companyId || c.email} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
                       <td className="py-3 px-3 font-bold text-slate-900 dark:text-white">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-xs font-extrabold text-slate-700 dark:text-slate-300 overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
-                            {c.logoUrl ? (
-                              <img src={c.logoUrl} alt={c.companyName} className="w-full h-full object-cover" />
-                            ) : (
-                              (c.companyName || 'C').charAt(0)
-                            )}
-                          </div>
+                          <CompanyLogo
+                            logoUrl={c.logoUrl}
+                            companyName={c.companyName || 'Corporate Partner'}
+                            size="sm"
+                          />
                           <div>
                             <p className="font-bold">{c.companyName || 'Corporate Partner'}</p>
                             {c.websiteUrl && (

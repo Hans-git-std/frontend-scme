@@ -18,6 +18,7 @@ import { apiClient } from '../../lib/api';
 import { ApiResponse, CompanyPublicResponse } from '../../types';
 import { CardSkeleton } from '../../components/ui/Skeleton';
 import { getVerificationStatusBadge } from '../../lib/utils';
+import { CompanyLogo } from '../../components/ui/CompanyLogo';
 
 export const CompanyDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -80,13 +81,11 @@ export const CompanyDetailPage: React.FC = () => {
       <div className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-extrabold text-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
-              {company.logoUrl ? (
-                <img src={company.logoUrl} alt={company.companyName} className="w-full h-full object-cover" />
-              ) : (
-                company.companyName.charAt(0)
-              )}
-            </div>
+            <CompanyLogo
+              logoUrl={company.logoUrl}
+              companyName={company.companyName}
+              size="lg"
+            />
 
             <div className="space-y-1">
               <div className="flex flex-wrap items-center gap-2">

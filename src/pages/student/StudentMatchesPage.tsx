@@ -17,6 +17,7 @@ import { ApiResponse, CompanyMatchResponse } from '../../types';
 import { ScoreGauge } from '../../components/ui/ScoreGauge';
 import { LoadingAnimation } from '../../components/ui/LoadingAnimation';
 import { getVerificationStatusBadge } from '../../lib/utils';
+import { CompanyLogo } from '../../components/ui/CompanyLogo';
 
 export const StudentMatchesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -169,17 +170,11 @@ export const StudentMatchesPage: React.FC = () => {
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                   <div className="flex items-start gap-4">
                     {/* Logo */}
-                    <div className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-300 font-extrabold text-xl overflow-hidden border border-slate-200 dark:border-slate-700 shrink-0">
-                      {match.logoUrl ? (
-                        <img
-                          src={match.logoUrl}
-                          alt={match.companyName}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        match.companyName.charAt(0)
-                      )}
-                    </div>
+                    <CompanyLogo
+                      logoUrl={match.logoUrl}
+                      companyName={match.companyName}
+                      size="md"
+                    />
 
                     {/* Titles & Details */}
                     <div className="space-y-1">
