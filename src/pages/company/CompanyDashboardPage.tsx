@@ -285,35 +285,37 @@ export const CompanyDashboardPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="space-y-1 text-xs">
-                  <span className="text-[11px] font-semibold text-slate-500">
-                    Required Skills ({crit.requiredSkills?.length || 0}):
-                  </span>
-                  <div className="flex flex-wrap gap-1">
-                    {crit.requiredSkills?.map((s) => (
-                      <span
-                        key={s.id}
-                        className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${
-                          s.isMandatory
-                            ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 font-bold'
-                            : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        {s.skillName} ({s.minProficiency})
-                      </span>
-                    ))}
+                {Array.isArray(crit.requiredSkills) && crit.requiredSkills.length > 0 && (
+                  <div className="space-y-1 text-xs">
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      Required Skills ({crit.requiredSkills.length}):
+                    </span>
+                    <div className="flex flex-wrap gap-1">
+                      {crit.requiredSkills.map((s: any) => (
+                        <span
+                          key={s.id || s.skillName}
+                          className={`text-[10px] px-2 py-0.5 rounded-md font-medium ${
+                            s.isMandatory
+                              ? 'bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 font-bold'
+                              : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                          }`}
+                        >
+                          {s.skillName} {s.minProficiency ? `(${s.minProficiency})` : ''}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {crit.subjectCutoffs && crit.subjectCutoffs.length > 0 && (
+                {Array.isArray(crit.subjectCutoffs) && crit.subjectCutoffs.length > 0 && (
                   <div className="space-y-1 text-xs pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
                     <span className="text-[11px] font-semibold text-slate-500">
                       Subject Cutoffs:
                     </span>
                     <div className="flex flex-wrap gap-1">
-                      {crit.subjectCutoffs.map((c) => (
+                      {crit.subjectCutoffs.map((c: any) => (
                         <span
-                          key={c.id}
+                          key={c.id || c.subjectName}
                           className="text-[10px] px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 dark:bg-indigo-950/40 dark:text-indigo-300 border border-indigo-200/60"
                         >
                           {c.subjectName}: ≥{c.minMarksCutoff}%

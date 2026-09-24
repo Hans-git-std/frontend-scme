@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   GraduationCap,
   Building2,
@@ -19,9 +19,21 @@ import {
   Cpu,
   ExternalLink,
   Code,
+  Search,
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
+  const [heroSearch, setHeroSearch] = useState('');
+  const navigate = useNavigate();
+
+  const handleHeroSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (heroSearch.trim()) {
+      navigate(`/companies?q=${encodeURIComponent(heroSearch.trim())}`);
+    } else {
+      navigate('/companies');
+    }
+  };
   return (
     <div className="space-y-20 pb-16 overflow-hidden">
       {/* Hero Section */}
@@ -46,8 +58,44 @@ export const LandingPage: React.FC = () => {
             Eliminate placement ambiguity. Our intelligent engine evaluates verified academic scores across 1000+ courses, multi-domain skill profiles (CSE, Mechanical, ECE, Electrical, Civil, Chemical, AI/DS), and corporate requirements.
           </p>
 
+          {/* Interactive Company Search Bar */}
+          <form onSubmit={handleHeroSearch} className="max-w-2xl mx-auto pt-2">
+            <div className="glass-card rounded-2xl p-2 sm:p-2.5 flex items-center gap-2 border border-slate-200/90 dark:border-slate-800 shadow-xl shadow-sky-500/5">
+              <Search className="w-5 h-5 text-sky-600 dark:text-sky-400 ml-2.5 shrink-0" />
+              <input
+                type="text"
+                value={heroSearch}
+                onChange={(e) => setHeroSearch(e.target.value)}
+                placeholder="Search 200+ companies by name, skill (Python, CAD, Java...), role, or city..."
+                className="flex-1 px-2 py-2 bg-transparent text-xs sm:text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none"
+              />
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-sky-500/20 transition-all shrink-0 flex items-center gap-1.5"
+              >
+                <span>Search</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Quick Keyword Chips */}
+            <div className="flex flex-wrap items-center justify-center gap-1.5 pt-2.5 text-xs text-slate-500">
+              <span className="text-[11px] text-slate-400">Popular:</span>
+              {['Python', 'Mechanical', 'Java', 'SolidWorks', 'Civil', 'Tata', 'Bengaluru'].map((term) => (
+                <button
+                  key={term}
+                  type="button"
+                  onClick={() => navigate(`/companies?q=${encodeURIComponent(term)}`)}
+                  className="px-2.5 py-0.5 rounded-full bg-slate-100 hover:bg-sky-50 dark:bg-slate-800/80 dark:hover:bg-sky-950/60 text-[11px] text-slate-600 dark:text-slate-300 hover:text-sky-600 transition-colors"
+                >
+                  {term}
+                </button>
+              ))}
+            </div>
+          </form>
+
           {/* Primary Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
             <Link
               to="/login"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-bold shadow-lg shadow-brand-500/25 transition-all transform hover:-translate-y-0.5"

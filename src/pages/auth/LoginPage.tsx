@@ -316,6 +316,48 @@ export const LoginPage: React.FC = () => {
                   </>
                 )}
               </button>
+
+              {/* Quick Evaluator Pre-fill Shortcuts */}
+              <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-1.5">
+                <div className="flex items-center justify-between text-[11px] text-slate-400">
+                  <span className="font-semibold">Evaluator Quick Fill:</span>
+                  <Link to="/admin/login" className="text-amber-600 dark:text-amber-400 font-semibold hover:underline">
+                    Master Admin Console →
+                  </Link>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRole('ROLE_STUDENT');
+                      setEmail('student@university.edu');
+                    }}
+                    className="py-1 px-1.5 text-[11px] font-medium rounded-lg bg-slate-100 dark:bg-slate-800/70 hover:bg-brand-50 hover:text-brand-600 dark:hover:bg-brand-950/40 text-slate-600 dark:text-slate-400 transition-colors text-center truncate"
+                  >
+                    🎓 Student
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRole('ROLE_TEACHER');
+                      setEmail('faculty@university.edu');
+                    }}
+                    className="py-1 px-1.5 text-[11px] font-medium rounded-lg bg-slate-100 dark:bg-slate-800/70 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-950/40 text-slate-600 dark:text-slate-400 transition-colors text-center truncate"
+                  >
+                    👨‍🏫 Faculty
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setRole('ROLE_COMPANY');
+                      setEmail('recruiting@company.com');
+                    }}
+                    className="py-1 px-1.5 text-[11px] font-medium rounded-lg bg-slate-100 dark:bg-slate-800/70 hover:bg-sky-50 hover:text-sky-600 dark:hover:bg-sky-950/40 text-slate-600 dark:text-slate-400 transition-colors text-center truncate"
+                  >
+                    🏢 Company
+                  </button>
+                </div>
+              </div>
             </form>
           ) : (
             /* Step 2: OTP Verification Form */

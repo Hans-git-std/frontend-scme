@@ -387,3 +387,18 @@ export interface DomainCatalog {
   skills: string[];
 }
 
+// ==========================================
+// Admin Live OTP Monitor Contracts
+// ==========================================
+
+export interface AdminOtpRecord {
+  id: number;
+  email: string;
+  otpCode: string;
+  createdAt: string;
+  expiresAt: string;
+  remainingSeconds: number;
+  isUsed: boolean;
+  status: 'PENDING' | 'VERIFIED' | 'EXPIRED' | string;
+}
+

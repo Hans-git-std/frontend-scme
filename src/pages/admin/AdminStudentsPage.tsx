@@ -16,6 +16,9 @@ import {
   Calendar,
   Edit3,
   Save,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { apiClient } from '../../lib/api';
 import { useToast } from '../../components/ui/Toast';
@@ -29,6 +32,8 @@ export const AdminStudentsPage: React.FC = () => {
   const toast = useToast();
 
   const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 12;
   const [selectedStudent, setSelectedStudent] = useState<StudentProfileResponse | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<StudentProfileResponse | null>(null);
 
@@ -123,6 +128,12 @@ export const AdminStudentsPage: React.FC = () => {
     });
   }, [students, search]);
 
+  const totalStudentPages = Math.ceil(filteredStudents.length / PAGE_SIZE) || 1;
+  const paginatedStudents = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredStudents.slice(start, start + PAGE_SIZE);
+  }, [filteredStudents, currentPage]);
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -136,18 +147,34 @@ export const AdminStudentsPage: React.FC = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="glass-card rounded-2xl p-4 flex items-center justify-between">
+      <div className="glass-card rounded-2xl p-4 flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             placeholder="Search by student name, roll number, or email..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            className="w-full pl-10 pr-9 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch('');
+                setCurrentPage(1);
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
-        <span className="text-xs font-semibold text-slate-500">
+        <span className="text-xs font-semibold text-slate-500 shrink-0">
           Total: {filteredStudents.length} Students
         </span>
       </div>
@@ -162,20 +189,21 @@ export const AdminStudentsPage: React.FC = () => {
             <p className="text-xs text-slate-500">No student profiles found.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-3">Student Name</th>
-                  <th className="py-3 px-3">Roll Number & Email</th>
-                  <th className="py-3 px-3">Aggregate Score</th>
-                  <th className="py-3 px-3">Academic Marks</th>
-                  <th className="py-3 px-3">Registered Skills</th>
-                  <th className="py-3 px-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-800 dark:text-slate-200">
-                {filteredStudents.map((s) => (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th className="py-3 px-3">Student Name</th>
+                    <th className="py-3 px-3">Roll Number & Email</th>
+                    <th className="py-3 px-3">Aggregate Score</th>
+                    <th className="py-3 px-3">Academic Marks</th>
+                    <th className="py-3 px-3">Registered Skills</th>
+                    <th className="py-3 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-800 dark:text-slate-200">
+                  {paginatedStudents.map((s) => (
                   <tr key={s.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
                     <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white">
                       {s.fullName || 'Student'}
@@ -249,6 +277,40 @@ export const AdminStudentsPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {totalStudentPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <span className="text-xs text-slate-500">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+                {Math.min(currentPage * PAGE_SIZE, filteredStudents.length)} of{' '}
+                {filteredStudents.length} students
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 transition-colors"
+                  title="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="px-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Page {currentPage} of {totalStudentPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalStudentPages, p + 1))}
+                  disabled={currentPage === totalStudentPages}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 transition-colors"
+                  title="Next page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          </>
         )}
       </div>
 

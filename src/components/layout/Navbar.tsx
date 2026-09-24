@@ -12,13 +12,28 @@ import {
   UserPlus,
   Sparkles,
   ExternalLink,
+  Search,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/authStore';
+import { CompanySearchModal } from '../ui/CompanySearchModal';
 
 export const Navbar: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const { isAuthenticated, role, userEmail, logout } = useAuthStore();
   const navigate = useNavigate();
+
+  // Listen for Ctrl+K / Cmd+K to open Search Window anywhere
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchModalOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -56,7 +71,22 @@ export const Navbar: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-4 lg:gap-6">
+          <div className="hidden md:flex items-center gap-3 lg:gap-5">
+            {/* Quick Search Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsSearchModalOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 dark:bg-slate-800/80 dark:hover:bg-slate-700/80 text-slate-500 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-700 text-xs font-medium transition-colors"
+              title="Search companies, skills & job roles (Ctrl+K)"
+            >
+              <Search className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+              <span className="hidden lg:inline">Search companies...</span>
+              <span className="lg:hidden">Search</span>
+              <kbd className="hidden lg:inline px-1 py-0.2 text-[9px] font-mono bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded text-slate-400">
+                Ctrl K
+              </kbd>
+            </button>
+
             <Link
               to="/companies"
               className="text-xs lg:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-600 dark:hover:text-brand-400 flex items-center gap-1.5 transition-colors"
@@ -133,8 +163,18 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile Right Controls: Direct Sign In + Hamburger */}
-          <div className="flex md:hidden items-center gap-2">
+          {/* Mobile Right Controls: Search + Direct Sign In + Hamburger */}
+          <div className="flex md:hidden items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setIsSearchModalOpen(true)}
+              className="p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              title="Quick Search"
+              aria-label="Open Search Window"
+            >
+              <Search className="w-4 h-4 text-sky-600 dark:text-sky-400" />
+            </button>
+
             {!isAuthenticated ? (
               <Link
                 to="/login"
@@ -250,6 +290,12 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Global Quick Search Modal Window */}
+      <CompanySearchModal
+        isOpen={isSearchModalOpen}
+        onClose={() => setIsSearchModalOpen(false)}
+      />
     </nav>
   );
 };

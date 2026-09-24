@@ -32,6 +32,7 @@ import { TableSkeleton } from '../../components/ui/Skeleton';
 import { LoadingAnimation } from '../../components/ui/LoadingAnimation';
 import { Modal } from '../../components/ui/Modal';
 import { formatUptime } from '../../lib/utils';
+import { AdminOtpMonitor } from '../../components/admin/AdminOtpMonitor';
 
 export const AdminDashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
@@ -388,6 +389,9 @@ export const AdminDashboardPage: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* Live OTP Verification Monitor */}
+      <AdminOtpMonitor />
 
       {/* Pending Unverified Companies Queue */}
       {pendingCompanies && pendingCompanies.length > 0 && (

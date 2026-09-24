@@ -176,44 +176,55 @@ export const CompanyDetailPage: React.FC = () => {
                     </div>
 
                     {/* Skills */}
-                    <div className="space-y-1.5">
-                      <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                        <Code className="w-3.5 h-3.5 text-indigo-500" />
-                        Required Technical Skills:
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {crit.requiredSkills?.map((s: any) => (
-                          <span
-                            key={s.id || s.skillName || s.name}
-                            className={`text-xs px-2.5 py-1 rounded-lg border font-medium ${
-                              s.isMandatory
-                                ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 font-bold'
-                                : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
-                            }`}
-                          >
-                            {s.skillName || s.name} ({s.minProficiency})
-                            {s.isMandatory && ' *Mandatory'}
-                          </span>
-                        ))}
+                    {Array.isArray(crit.requiredSkills) && crit.requiredSkills.length > 0 && (
+                      <div className="space-y-1.5">
+                        <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <Code className="w-3.5 h-3.5 text-indigo-500" />
+                          Required Technical Skills:
+                        </span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {crit.requiredSkills.map((s: any, sIdx: number) => {
+                            const skillName = typeof s === 'string' ? s : s.skillName || s.name || 'Skill';
+                            const prof = typeof s === 'object' && s.minProficiency ? ` (${s.minProficiency})` : '';
+                            const isMandatory = typeof s === 'object' && s.isMandatory;
+                            return (
+                              <span
+                                key={s.id || `${skillName}-${sIdx}`}
+                                className={`text-xs px-2.5 py-1 rounded-lg border font-medium ${
+                                  isMandatory
+                                    ? 'bg-rose-50 text-rose-800 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 font-bold'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700'
+                                }`}
+                              >
+                                {skillName}{prof}
+                                {isMandatory && ' *Mandatory'}
+                              </span>
+                            );
+                          })}
+                        </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* Cutoffs */}
-                    {crit.subjectCutoffs && crit.subjectCutoffs.length > 0 && (
+                    {Array.isArray(crit.subjectCutoffs) && crit.subjectCutoffs.length > 0 && (
                       <div className="space-y-1.5 pt-2 border-t border-slate-100 dark:border-slate-800">
                         <span className="text-[11px] font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                           <BookOpen className="w-3.5 h-3.5 text-brand-500" />
                           Academic Cutoffs:
                         </span>
                         <div className="flex flex-wrap gap-1.5">
-                          {crit.subjectCutoffs.map((c: any) => (
-                            <span
-                              key={c.id || c.subjectName}
-                              className="text-xs px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300 border border-indigo-200"
-                            >
-                              {c.subjectName} ≥ {c.minMarksCutoff}%
-                            </span>
-                          ))}
+                          {crit.subjectCutoffs.map((c: any, cIdx: number) => {
+                            const subName = typeof c === 'string' ? c : c.subjectName || c.name || 'Subject';
+                            const cutoff = typeof c === 'object' && c.minMarksCutoff !== undefined ? ` ≥ ${c.minMarksCutoff}%` : '';
+                            return (
+                              <span
+                                key={c.id || `${subName}-${cIdx}`}
+                                className="text-xs px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300 border border-indigo-200"
+                              >
+                                {subName}{cutoff}
+                              </span>
+                            );
+                          })}
                         </div>
                       </div>
                     )}

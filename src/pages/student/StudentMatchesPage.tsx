@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import {
@@ -11,6 +11,7 @@ import {
   TrendingUp,
   BookOpen,
   ExternalLink,
+  X,
 } from 'lucide-react';
 import { apiClient } from '../../lib/api';
 import { ApiResponse, CompanyMatchResponse } from '../../types';
@@ -18,29 +19,52 @@ import { ScoreGauge } from '../../components/ui/ScoreGauge';
 import { LoadingAnimation } from '../../components/ui/LoadingAnimation';
 import { getVerificationStatusBadge } from '../../lib/utils';
 import { CompanyLogo } from '../../components/ui/CompanyLogo';
+import { ensureStudentProfile } from '../../lib/studentProfileHelper';
 
 export const StudentMatchesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'ALL' | 'STRICT' | 'RELAXED_WEIGHTED'>('ALL');
 
-  const { data: matches, isLoading, error } = useQuery({
+  useEffect(() => {
+    ensureStudentProfile();
+  }, []);
+
+  const { data: matches, isLoading, error, refetch, isFetching } = useQuery({
     queryKey: ['studentMatches'],
     queryFn: async () => {
-      const res = await apiClient.get<ApiResponse<CompanyMatchResponse[]>>('/students/matches');
-      return res.data.data;
+      try {
+        const res = await apiClient.get<ApiResponse<CompanyMatchResponse[]>>('/students/matches');
+        return res.data.data;
+      } catch (err: any) {
+        if (err.response?.status === 404 || err.response?.status === 400) {
+          await ensureStudentProfile();
+          const retryRes = await apiClient.get<ApiResponse<CompanyMatchResponse[]>>('/students/matches');
+          return retryRes.data.data;
+        }
+        throw err;
+      }
     },
+    retry: 2,
   });
 
   const filteredMatches = useMemo(() => {
     if (!matches) return [];
+    const q = searchQuery.toLowerCase().trim();
     return matches.filter((m) => {
-      const matchesFilter =
-        filterType === 'ALL' || m.matchType === filterType;
-      const matchesSearch =
-        m.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        m.roleTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (m.location && m.location.toLowerCase().includes(searchQuery.toLowerCase()));
-      return matchesFilter && matchesSearch;
+      const matchesFilter = filterType === 'ALL' || m.matchType === filterType;
+      if (!matchesFilter) return false;
+      if (!q) return true;
+
+      const compMatch = (m.companyName || '').toLowerCase().includes(q);
+      const roleMatch = (m.roleTitle || '').toLowerCase().includes(q);
+      const locMatch = (m.location || '').toLowerCase().includes(q);
+      const matchedSkillMatch = (m.matchedSkills || []).some((s) => s.toLowerCase().includes(q));
+      const missingSkillMatch = (m.missingSkills || []).some((s) => s.toLowerCase().includes(q));
+      const gapMatch = (m.subjectGaps || []).some((g) =>
+        (g.subjectName || '').toLowerCase().includes(q) || (g.gapRemark || '').toLowerCase().includes(q)
+      );
+
+      return compMatch || roleMatch || locMatch || matchedSkillMatch || missingSkillMatch || gapMatch;
     });
   }, [matches, filterType, searchQuery]);
 
@@ -79,14 +103,24 @@ export const StudentMatchesPage: React.FC = () => {
       <div className="glass-card rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Search */}
         <div className="relative flex-1 max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by company, role, or location..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            placeholder="Search by company, role, skill (Python, CAD...), or location..."
+            className="w-full pl-10 pr-9 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         {/* Filter Pills */}
@@ -130,14 +164,25 @@ export const StudentMatchesPage: React.FC = () => {
       {isLoading ? (
         <LoadingAnimation message="Computing Match Compatibility..." subMessage="Evaluating student academic scores and skills against active corporate requirements" variant="card" />
       ) : error ? (
-        <div className="glass-card rounded-2xl p-8 text-center space-y-3">
+        <div className="glass-card rounded-2xl p-8 text-center space-y-4">
           <AlertTriangle className="w-8 h-8 text-rose-500 mx-auto" />
-          <h4 className="text-base font-bold text-slate-900 dark:text-white">
-            Unable to Load Matches
-          </h4>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            Please make sure you have submitted at least one academic mark and registered your technical skills.
-          </p>
+          <div className="space-y-1">
+            <h4 className="text-base font-bold text-slate-900 dark:text-white">
+              Unable to Load Matches
+            </h4>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Please make sure your student profile exists, or click below to retry fetching matches.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+          >
+            <span className={isFetching ? 'animate-spin' : ''}>↻</span>
+            <span>{isFetching ? 'Refreshing...' : 'Retry Loading Matches'}</span>
+          </button>
         </div>
       ) : filteredMatches.length === 0 ? (
         <div className="glass-card rounded-2xl p-12 text-center space-y-4">

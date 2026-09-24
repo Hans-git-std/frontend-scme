@@ -16,6 +16,8 @@ import {
   Eye,
   Edit3,
   Save,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { apiClient } from '../../lib/api';
 import { useToast } from '../../components/ui/Toast';
@@ -35,6 +37,8 @@ export const AdminTeachersPage: React.FC = () => {
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | TeacherApprovalStatus>('ALL');
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 12;
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [inspectTeacher, setInspectTeacher] = useState<TeacherProfileResponse | null>(null);
   const [editTeacher, setEditTeacher] = useState<TeacherProfileResponse | null>(null);
@@ -166,15 +170,26 @@ export const AdminTeachersPage: React.FC = () => {
     const query = search.toLowerCase().trim();
     return teachers.filter((t) => {
       if (!t) return false;
+      const matchesStatus = statusFilter === 'ALL' || t.approvalStatus === statusFilter;
+      if (!matchesStatus) return false;
+      if (!query) return true;
+
       const nameMatch = (t.fullName || '').toLowerCase().includes(query);
       const emailMatch = (t.email || '').toLowerCase().includes(query);
       const empMatch = (t.employeeId || '').toLowerCase().includes(query);
       const deptMatch = (t.department || '').toLowerCase().includes(query);
-      const matchesSearch = !query || nameMatch || emailMatch || empMatch || deptMatch;
-      const matchesStatus = statusFilter === 'ALL' || t.approvalStatus === statusFilter;
-      return matchesSearch && matchesStatus;
+      const desigMatch = (t.designation || '').toLowerCase().includes(query);
+      const subMatch = (t.assignedSubjects || []).some((s: string) => s.toLowerCase().includes(query));
+
+      return nameMatch || emailMatch || empMatch || deptMatch || desigMatch || subMatch;
     });
   }, [teachers, search, statusFilter]);
+
+  const totalTeacherPages = Math.ceil(filteredTeachers.length / PAGE_SIZE) || 1;
+  const paginatedTeachers = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return filteredTeachers.slice(start, start + PAGE_SIZE);
+  }, [filteredTeachers, currentPage]);
 
   const handleAddSubject = (sub: string) => {
     const trimmed = sub.trim();
@@ -229,14 +244,30 @@ export const AdminTeachersPage: React.FC = () => {
       {/* Filter & Search Bar */}
       <div className="glass-card rounded-2xl p-4 flex flex-col sm:flex-row gap-4 justify-between items-center">
         <div className="relative flex-1 w-full max-w-md">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by name, email, employee ID, or department..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Search by name, email, employee ID, department, or subject..."
+            className="w-full pl-10 pr-9 py-2 bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
           />
+          {search && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch('');
+                setCurrentPage(1);
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              title="Clear search"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-xl shrink-0">
@@ -299,20 +330,21 @@ export const AdminTeachersPage: React.FC = () => {
             <p className="text-xs text-slate-500">No faculty records match your criteria.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
-                <tr>
-                  <th className="py-3 px-3">Faculty Member</th>
-                  <th className="py-3 px-3">Email & Employee ID</th>
-                  <th className="py-3 px-3">Department</th>
-                  <th className="py-3 px-3">Assigned Subjects</th>
-                  <th className="py-3 px-3">Approval Status</th>
-                  <th className="py-3 px-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-800 dark:text-slate-200">
-                {filteredTeachers.map((t) => (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+                  <tr>
+                    <th className="py-3 px-3">Faculty Member</th>
+                    <th className="py-3 px-3">Email & Employee ID</th>
+                    <th className="py-3 px-3">Department</th>
+                    <th className="py-3 px-3">Assigned Subjects</th>
+                    <th className="py-3 px-3">Approval Status</th>
+                    <th className="py-3 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-slate-800 dark:text-slate-200">
+                  {paginatedTeachers.map((t) => (
                   <tr key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-colors">
                     <td className="py-3 px-3 font-semibold text-slate-900 dark:text-white">
                       {t.fullName || 'Faculty Member'}
@@ -404,6 +436,40 @@ export const AdminTeachersPage: React.FC = () => {
               </tbody>
             </table>
           </div>
+
+          {totalTeacherPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+              <span className="text-xs text-slate-500">
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+                {Math.min(currentPage * PAGE_SIZE, filteredTeachers.length)} of{' '}
+                {filteredTeachers.length} faculty members
+              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 transition-colors"
+                  title="Previous page"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <span className="px-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  Page {currentPage} of {totalTeacherPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((p) => Math.min(totalTeacherPages, p + 1))}
+                  disabled={currentPage === totalTeacherPages}
+                  className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 disabled:opacity-40 transition-colors"
+                  title="Next page"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          )}
+          </>
         )}
       </div>
 
